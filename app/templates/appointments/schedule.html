@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <h2>アポ登録・カレンダー連携</h2>
+        <p class="text-muted">対象クライアント: <strong>{{ client.name }}</strong> ({{ client.email }})</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <form action="{{ url_for('appointments.schedule', client_id=client.id) }}" method="POST">
+            <div class="mb-3">
+                <label for="appointment_time" class="form-label">アポ日時</label>
+                <input type="datetime-local" class="form-control" id="appointment_time" name="appointment_time" required>
+            </div>
+            <div class="mb-3">
+                <label for="duration" class="form-label">所要時間 (分)</label>
+                <input type="number" class="form-control" id="duration" name="duration" value="60" required>
+            </div>
+            <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="send_confirm_mail" name="send_confirm_mail" checked>
+                <label class="form-check-label" for="send_confirm_mail">アポ確定メールを同時に送信する</label>
+            </div>
+            <hr>
+            <h4>事前設定 (アポ終了後メール用)</h4>
+            <div class="mb-3">
+                <label for="materials_link" class="form-label">送付資料のリンク・内容 (事前設定)</label>
+                <textarea class="form-control" id="materials_link" name="materials_link" rows="4" placeholder="例: https://drive.google.com/file/..."></textarea>
+                <small class="text-muted">※ここに記載した内容が、アポ終了後のフォローアップメールに自動で挿入されます。</small>
+            </div>
+
+            <button type="submit" class="btn btn-primary">カレンダーに登録</button>
+            <a href="{{ url_for('clients.index') }}" class="btn btn-secondary">キャンセル</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

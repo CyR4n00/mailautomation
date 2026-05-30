@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12 text-center">
+        <h1>メール自動化・アポ管理ダッシュボード</h1>
+        <p class="lead">クライアントへのメール送信、カレンダー登録などを自動化します。</p>
+        <hr>
+        <div class="mt-4">
+            <a href="{{ url_for('clients.index') }}" class="btn btn-primary btn-lg m-2">クライアント管理</a>
+            <a href="{{ url_for('mail.send_bulk') }}" class="btn btn-success btn-lg m-2">一斉メール送信</a>
+            <a href="{{ url_for('settings.index') }}" class="btn btn-info btn-lg m-2">Google連携設定</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

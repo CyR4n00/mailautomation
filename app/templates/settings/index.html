@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <h2>設定・連携</h2>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <div class="card mt-4">
+            <div class="card-header">
+                Google 連携 (Gmail / カレンダー)
+            </div>
+            <div class="card-body">
+                <p>Google Workspace (またはGmail) のアカウントと連携して、メールの送信とカレンダーの予定登録を行います。</p>
+                <p class="text-danger"><small>※事前に Google Cloud Console で <code>credentials.json</code> をダウンロードし、プロジェクトのルートディレクトリに配置してください。</small></p>
+                <a href="{{ url_for('settings.auth_google') }}" class="btn btn-primary">Google 認証を実行する</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

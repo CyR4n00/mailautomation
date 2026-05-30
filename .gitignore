@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+*$py.class
+instance/
+*.sqlite3
+app.db
+*.db
+.env
+token.pickle
+credentials.json
+app_output.log
+venv/

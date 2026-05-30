@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-10 offset-md-1">
+        <h2>一斉メール送信 (BCC)</h2>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <form action="{{ url_for('mail.send_bulk') }}" method="POST">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="mb-3">
+                        <label for="subject" class="form-label">件名</label>
+                        <input type="text" class="form-control" id="subject" name="subject" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="body" class="form-label">本文</label>
+                        <textarea class="form-control" id="body" name="body" rows="10" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-success" onclick="return confirm('選択したクライアントに一斉送信します。よろしいですか？');">一斉送信する</button>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            送信先リスト (チェックした宛先がBCCに入ります)
+                        </div>
+                        <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="checkAll" onclick="toggleCheckboxes(this)">
+                                <label class="form-check-label fw-bold" for="checkAll">
+                                    すべて選択
+                                </label>
+                            </div>
+                            <hr>
+                            {% for client in clients %}
+                            <div class="form-check">
+                                <input class="form-check-input client-checkbox" type="checkbox" name="client_ids" value="{{ client.id }}" id="client_{{ client.id }}">
+                                <label class="form-check-label" for="client_{{ client.id }}">
+                                    {{ client.name }} <br><small class="text-muted">{{ client.email }} ({{ client.status }})</small>
+                                </label>
+                            </div>
+                            {% else %}
+                            <p>クライアントが登録されていません。</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function toggleCheckboxes(source) {
+    checkboxes = document.querySelectorAll('.client-checkbox');
+    for(var i=0, n=checkboxes.length;i<n;i++) {
+        checkboxes[i].checked = source.checked;
+    }
+}
+</script>
+{% endblock %}

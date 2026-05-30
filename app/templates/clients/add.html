@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <h2>クライアント登録</h2>
+        <a href="{{ url_for('clients.index') }}" class="btn btn-secondary mb-3">戻る</a>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                単体登録
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('clients.add') }}" method="POST">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">名前</label>
+                        <input type="text" class="form-control" id="name" name="name">
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">メールアドレス</label>
+                        <input type="email" class="form-control" id="email" name="email">
+                    </div>
+                    <button type="submit" class="btn btn-primary">登録</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                一括登録 (CSV/テキストペースト)
+            </div>
+            <div class="card-body">
+                <p class="text-muted"><code>名前,メールアドレス</code> の形式で1行ずつ入力してください。</p>
+                <form action="{{ url_for('clients.add') }}" method="POST">
+                    <div class="mb-3">
+                        <textarea class="form-control" name="bulk_data" rows="5" placeholder="山田 太郎,yamada@example.com&#10;鈴木 花子,suzuki@example.com"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-success">一括登録</button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

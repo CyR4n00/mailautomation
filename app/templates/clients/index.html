@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row mb-3">
+    <div class="col-md-8">
+        <h2>クライアント一覧</h2>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{{ url_for('clients.add') }}" class="btn btn-primary">新規登録・一括登録</a>
+    </div>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="alert alert-{{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+<table class="table table-striped align-middle">
+    <thead>
+        <tr>
+            <th>名前</th>
+            <th>メールアドレス</th>
+            <th>状態</th>
+            <th>アポ日時</th>
+            <th>資料送付先</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for client in clients %}
+        <tr>
+            <td>{{ client.name }}</td>
+            <td>{{ client.email }}</td>
+            <td><span class="badge bg-secondary">{{ client.status }}</span></td>
+            <td>
+                {% if client.appointment_time %}
+                    {{ client.appointment_time.strftime('%Y-%m-%d %H:%M') }}
+                {% else %}
+                    -
+                {% endif %}
+            </td>
+            <td>
+                {% if client.materials_link %}
+                    <span class="text-success" title="{{ client.materials_link }}">設定済</span>
+                {% else %}
+                    <span class="text-muted">未設定</span>
+                {% endif %}
+            </td>
+            <td>
+                <a href="{{ url_for('appointments.schedule', client_id=client.id) }}" class="btn btn-sm btn-info mb-1">アポ登録</a>
+                <form action="{{ url_for('clients.delete', id=client.id) }}" method="POST" style="display:inline;">
+                    <button type="submit" class="btn btn-sm btn-danger mb-1" onclick="return confirm('本当に削除しますか？');">削除</button>
+                </form>
+            </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="6" class="text-center">クライアントが登録されていません。</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
