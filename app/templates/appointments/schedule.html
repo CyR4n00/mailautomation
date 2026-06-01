@@ -24,8 +24,17 @@
                 <input type="number" class="form-control" id="duration" name="duration" value="60" required>
             </div>
             <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="generate_meet" name="generate_meet" checked>
+                <label class="form-check-label fw-bold text-primary" for="generate_meet">
+                    Google MeetのWeb会議URLを自動発行する
+                </label>
+            </div>
+            <div class="mb-3 form-check">
                 <input type="checkbox" class="form-check-input" id="send_confirm_mail" name="send_confirm_mail" checked>
-                <label class="form-check-label" for="send_confirm_mail">アポ確定メールを同時に送信する</label>
+                <label class="form-check-label" for="send_confirm_mail">
+                    お客様へアポ確定（手配完了）メールを即時送信する
+                </label>
+                <div class="form-text">※上記で生成したMeetのURLがメール本文に自動挿入されます。</div>
             </div>
             <hr>
             <h4>事前設定 (アポ終了後メール用)</h4>
@@ -35,7 +44,7 @@
                 <small class="text-muted">※ここに記載した内容が、アポ終了後のフォローアップメールに自動で挿入されます。</small>
             </div>
 
-            <button type="submit" class="btn btn-primary">カレンダーに登録</button>
+            <button type="submit" class="btn btn-primary">カレンダーに登録して手配する</button>
             <a href="{{ url_for('clients.index') }}" class="btn btn-secondary">キャンセル</a>
         </form>
     </div>

@@ -24,8 +24,8 @@ def check_and_send_reminders(app):
             if now >= end_time:
                 try:
                     materials = client.materials_link if client.materials_link else "(資料リンクは設定されていません)"
-                    subject = "【御礼】本日のオンラインミーティングと資料のご案内"
-                    body = f"{client.name} 様\n\n本日はお忙しい中、お時間をいただき誠にありがとうございました。\n\n本日のミーティングで使用した資料をお送りいたします。\n{materials}\n\n引き続きよろしくお願いいたします。"
+                    subject = "【御礼】本日のミーティングと資料のご案内"
+                    body = f"{client.name} 様\n\n本日はお時間をいただき誠にありがとうございました。\n\n本日のミーティングで使用した資料をお送りいたします。\n\n{materials}\n\n引き続きよろしくお願いいたします。"
                     send_email(to=client.email, subject=subject, body=body)
 
                     # 送信済みフラグとステータスを更新
@@ -50,7 +50,12 @@ def check_and_send_reminders(app):
         for client in upcoming_appointments:
             try:
                 subject = "【リマインド】明日のオンラインミーティングについて"
-                body = f"{client.name} 様\n\nお世話になっております。\n\n明日のオンラインミーティングのリマインドとなります。\n日時: {client.appointment_time.strftime('%Y年%m月%d日 %H:%M')}〜\n\nよろしくお願いいたします。"
+
+                # リマインドメールに送るMeetのURLは、データベースに保存していないため、
+                # 必要であればカレンダーIDからGoogle APIを叩いて取得するか、あるいはシンプルに日時だけリマインドするか。
+                # ここではシンプルに日時のご案内とする。
+                body = f"{client.name} 様\n\nお世話になっております。\n\n明日のオンラインミーティングのリマインドとなります。\n\n■日時: {client.appointment_time.strftime('%Y年%m月%d日 %H:%M')}〜\n※参加用URLは、手配完了時にお送りしたメールをご確認ください。\n\nよろしくお願いいたします。"
+
                 send_email(to=client.email, subject=subject, body=body)
 
                 # 送信済みフラグを更新
