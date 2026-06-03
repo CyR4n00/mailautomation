@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for
 from app.models.client import Client
 from app.services.email_service import send_email
+from app.services.google_auth import get_gmail_service
 from app import db
 
 mail_bp = Blueprint('mail', __name__, url_prefix='/mail')
@@ -26,12 +27,13 @@ def send_bulk():
         bcc_emails = ", ".join([c.email for c in selected_clients])
 
         try:
-            # 宛先(To)は自分自身などに設定し、クライアントはBCCに設定する
-            # ※ここでは便宜上 To を自分自身 (BCCの最初の1人や固定のアドレス) にするか、空にすることが多いですが、Gmailの仕様上Toがあった方がスパム判定されにくいです。
-            # 一旦、最初のユーザーをToにして残りをBccにするか、自分自身のメールアドレスをToに入れるなどの工夫が必要です。
-            # 今回はシンプルに、ダミーとして 'undisclosed-recipients:;' をToにして、すべてBCCに入れます。
+            # 自分自身のメールアドレスを取得してToに設定する（Gmail APIでエラーを防ぐため）
+            service = get_gmail_service()
+            profile = service.users().getProfile(userId='me').execute()
+            my_email = profile.get('emailAddress', 'me')
+
             send_email(
-                to='undisclosed-recipients:;',
+                to=my_email, # 自分のメールアドレスをToに入れる
                 subject=subject,
                 body=body,
                 bcc=bcc_emails
