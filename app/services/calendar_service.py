@@ -7,19 +7,21 @@ def create_appointment_event(summary, description, start_time_str, duration_minu
     try:
         service = get_calendar_service()
 
-        # 'YYYY-MM-DDTHH:MM' 形式を想定
         start_time = datetime.strptime(start_time_str, '%Y-%m-%dT%H:%M')
         end_time = start_time + timedelta(minutes=duration_minutes)
+
+        start_iso = start_time.strftime('%Y-%m-%dT%H:%M:%S') + '+09:00'
+        end_iso = end_time.strftime('%Y-%m-%dT%H:%M:%S') + '+09:00'
 
         event = {
           'summary': summary,
           'description': description,
           'start': {
-            'dateTime': start_time.isoformat() + ':00+09:00', # 日本時間を想定
+            'dateTime': start_iso,
             'timeZone': 'Asia/Tokyo',
           },
           'end': {
-            'dateTime': end_time.isoformat() + ':00+09:00',
+            'dateTime': end_iso,
             'timeZone': 'Asia/Tokyo',
           },
         }
@@ -27,28 +29,42 @@ def create_appointment_event(summary, description, start_time_str, duration_minu
         if attendee_email:
             event['attendees'] = [{'email': attendee_email}]
 
-        # Google MeetのURLを発行する場合の設定
         if generate_meet_url:
             event['conferenceData'] = {
                 'createRequest': {
-                    'requestId': str(uuid.uuid4()), # 一意のIDが必要
+                    'requestId': str(uuid.uuid4()),
                     'conferenceSolutionKey': {
                         'type': 'hangoutsMeet'
                     }
                 }
             }
 
-        # conferenceDataVersion=1 を指定しないとMeetのURLは生成されない
-        event_result = service.events().insert(
-            calendarId='primary',
-            body=event,
-            conferenceDataVersion=1 if generate_meet_url else 0
-        ).execute()
+        try:
+            event_result = service.events().insert(
+                calendarId='primary',
+                body=event,
+                conferenceDataVersion=1 if generate_meet_url else 0
+            ).execute()
+        except Exception as api_err:
+            # 無料のGmailアカウント等でMeetの自動生成が許可されていない場合のエラーハンドリング
+            if generate_meet_url and '400' in str(api_err) and 'badRequest' in str(api_err):
+                print(f"Meetの自動生成に失敗しました。通常の予定として登録を試みます。エラー詳細: {api_err}")
+                # Meet自動生成部分を外して再試行
+                event.pop('conferenceData', None)
+                event_result = service.events().insert(
+                    calendarId='primary',
+                    body=event,
+                    conferenceDataVersion=0
+                ).execute()
+                # MeetURLは発行できなかったことを呼び出し元に伝えるために特殊な文字列等を返すこともできるが、
+                # 今回は単純に None にしてエラーを出さない運用にする
+                return event_result.get('id'), None
+            else:
+                raise api_err
 
         event_id = event_result.get('id')
         meet_url = None
 
-        # 生成されたMeetのURLを取得する
         if generate_meet_url and 'conferenceData' in event_result:
             entry_points = event_result['conferenceData'].get('entryPoints', [])
             for point in entry_points:
